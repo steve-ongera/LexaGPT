@@ -1,0 +1,90 @@
+# ─── ENV FILES ────────────────────────────────────────────────
+.env
+.env.*
+*.env
+
+# ─── PYTHON ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Django stuff
+*.log
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+logs/
+
+# Migrations (optional: keep if working in team)
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# ─── DJANGO COLLECTSTATIC ─────────────────────────────────────
+static/
+
+# ─── NODE / REACT ─────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+
+# Vite cache
+.vite/
+
+# ─── OS FILES ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── IDE / EDITOR ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── TESTING / COVERAGE ───────────────────────────────────────
+htmlcov/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+
+# ─── AI / MODELS ──────────────────────────────────────────────
+models/
+*.pt
+*.pth
+*.bin
+
+# ─── LOG FILES ────────────────────────────────────────────────
+*.log
+
+# ─── REDIS / CELERY ───────────────────────────────────────────
+celerybeat-schedule
+celerybeat.pid
+
+# ─── UPLOADS / GENERATED FILES ────────────────────────────────
+uploads/
+tmp/
+temp/
+
+# ─── DOCKER (if used) ─────────────────────────────────────────
+*.pid
+*.seed
+*.pid.lock
+
+# ─── SECRETS ──────────────────────────────────────────────────
+secrets.json
+*.key
+*.pem
