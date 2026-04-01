@@ -1,121 +1,96 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
+import { useAuthStore } from './store/authStore'
 
-function App() {
-  const [count, setCount] = useState(0)
+// Pages - User
+import LandingPage from './pages/user/LandingPage'
+import LoginPage from './pages/user/LoginPage'
+import RegisterPage from './pages/user/RegisterPage'
+import ChatPage from './pages/user/ChatPage'
+import PricingPage from './pages/user/PricingPage'
+import SettingsPage from './pages/user/SettingsPage'
+import ProjectsPage from './pages/user/ProjectsPage'
+import ArtifactsPage from './pages/user/ArtifactsPage'
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+// Pages - Admin
+import AdminLayout from './pages/admin/AdminLayout'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminUsers from './pages/admin/AdminUsers'
+import AdminTraining from './pages/admin/AdminTraining'
+import AdminBenchmarks from './pages/admin/AdminBenchmarks'
+import AdminMetrics from './pages/admin/AdminMetrics'
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+// Guards
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuthStore()
+  if (loading) return <div className="app-loading"><div className="loading-orb" /></div>
+  return isAuthenticated ? children : <Navigate to="/login" replace />
 }
 
-export default App
+const AdminRoute = ({ children }) => {
+  const { isAuthenticated, user, loading } = useAuthStore()
+  if (loading) return <div className="app-loading"><div className="loading-orb" /></div>
+  if (!isAuthenticated) return <Navigate to="/login" replace />
+  if (!['admin', 'moderator'].includes(user?.role)) return <Navigate to="/chat" replace />
+  return children
+}
+
+const GuestRoute = ({ children }) => {
+  const { isAuthenticated } = useAuthStore()
+  return isAuthenticated ? <Navigate to="/chat" replace /> : children
+}
+
+export default function App() {
+  const { initAuth } = useAuthStore()
+
+  useEffect(() => {
+    initAuth()
+  }, [])
+
+  return (
+    <BrowserRouter>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: 'var(--surface-2)',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border)',
+            borderRadius: '12px',
+            fontFamily: 'var(--font-body)',
+          },
+          success: { iconTheme: { primary: 'var(--accent)', secondary: 'var(--bg)' } },
+          error: { iconTheme: { primary: 'var(--red)', secondary: 'var(--bg)' } },
+        }}
+      />
+      <Routes>
+        {/* Public */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+
+        {/* Guest only */}
+        <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+        <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
+
+        {/* Protected user */}
+        <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+        <Route path="/chat/:conversationId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+        <Route path="/projects" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
+        <Route path="/artifacts" element={<ProtectedRoute><ArtifactsPage /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+
+        {/* Admin */}
+        <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="training" element={<AdminTraining />} />
+          <Route path="benchmarks" element={<AdminBenchmarks />} />
+          <Route path="metrics" element={<AdminMetrics />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  )
+}
