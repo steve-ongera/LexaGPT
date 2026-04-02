@@ -1,0 +1,1 @@
+export { ArtifactsPage as default } from './ProjectsPage'
